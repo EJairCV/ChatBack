@@ -1,7 +1,7 @@
 const {Router} =require ("express");
 const router= Router();
 
-const User= require("../models/User");
+const User= require("../models/UserChat");
 
 const jwt = require ("jsonwebtoken");
 
@@ -27,16 +27,17 @@ const verifyToken = (req,res, next)=>{
 router.get("/",(req,res)=>res.send("hello world"));
 
 router.post("/registro",async (req,res)=>{   
-    const {email, password} = req.body;    
+    const {email, password, name} = req.body;    
     const newUser = new User({
         email,
-        password
+        password,
+        name
     });
     await newUser.save();
 
     const token =jwt.sign({_id: newUser._id},"secretkey")
 
-    res.status(200).json({token});
+    res.status(200).json({token,name});
 })
 
 
@@ -48,8 +49,8 @@ router.post("/log",async (req,res)=>{
     if(user.password!==password) return res.status(401).send("contraseña no valida");
 
     const token = jwt.sign({_id:user._id},"secretkey");
-
-    return res.status(200).json({token});
+    console.log(user.name);
+    return res.status(200).json({token, name:user.name});
 });
 
 router.get("/task", async(req,res)=>{
